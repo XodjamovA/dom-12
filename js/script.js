@@ -20,6 +20,7 @@ closebtns.forEach(btn => {
 let inpNeeds = document.querySelectorAll('.order__input')
 let form = document.forms.reg
 let allInps = document.querySelectorAll('form input')
+let inpNeeds_2 = document.querySelectorAll('.calculating__choose_medium input')
 
 let regex = {
     name: /^[a-z ,.'-]+$/g,
@@ -33,11 +34,11 @@ form.onsubmit = (event) => {
     inpNeeds.forEach(inp => {
         inp.classList.remove('invalid')
         if (inp.value.length < 1) {
-
             inp.classList.add('invalid')
             errorss++
         }
     })
+
 
     if (errorss > 0) {
         console.log('error');
@@ -113,3 +114,111 @@ btns.forEach((btn, index) => {
     }
 })
 
+let deadline = "2023-02-18 00:00"
+
+function remainingDate(endTime) {
+    let t = Date.parse(endTime) - Date.parse(new Date()),
+        days = Math.floor((t / 1000) / 60 / 60 / 24),
+        hours = Math.floor(((t / 1000) / 60 / 60) % 24),
+        minutes = Math.floor(((t / 1000) / 60) % 60),
+        seconds = Math.floor((t / 1000) % 60);
+
+    return {
+        t,
+        days,
+        hours,
+        minutes,
+        seconds
+    }
+}
+
+
+function setTime(endTime, selector) {
+    let t = document.querySelector(selector),
+        days = t.querySelector('#days'),
+        hours = t.querySelector('#hours'),
+        minutes = t.querySelector('#minutes'),
+        seconds = t.querySelector('#seconds'),
+        updateTime = setInterval(showTime, 1000);
+
+    function showTime() {
+        let t = remainingDate(endTime)
+        days.innerHTML = t.days
+        hours.innerHTML = t.hours
+        minutes.innerHTML = t.minutes
+        seconds.innerHTML = t.seconds
+
+        if (t.t <= 0) {
+            clearInterval(updateTime)
+        }
+    }
+}
+
+setTime(deadline, '.timer')
+
+
+// kkal
+let gens = document.querySelectorAll('#gender .calculating__choose-item')
+let inputs = document.querySelectorAll('.calculating__choose_medium input')
+let actBtns = document.querySelectorAll('.calculating__choose_big [data-act]')
+let resultView = document.querySelector('#result')
+
+let userData = {
+    gender: "woman",
+}
+
+
+gens.forEach(btn => {
+    btn.onclick = () => {
+        gens.forEach(el => el.classList.remove('calculating__choose-item_active'))
+        btn.classList.add('calculating__choose-item_active')
+
+        let g = btn.getAttribute('data-g')
+
+        userData.gender = g
+
+        actBtns.forEach(btn => {
+            actBtns.forEach(el => el.classList.remove('calculating__choose-item_active'))
+            resultView.innerHTML = 0
+        })
+    }
+})
+
+inputs.forEach(inp => {
+    inp.onkeyup = () => {
+        let key = inp.id
+        let val = inp.value
+
+        userData[key] = val
+    }
+})
+
+
+actBtns.forEach(btn => {
+    btn.onclick = () => {
+        actBtns.forEach(el => el.classList.remove('calculating__choose-item_active'))
+        btn.classList.add('calculating__choose-item_active')
+
+        let activeCount = btn.getAttribute('data-act')
+        let { active, gender, weight, height, age } = userData
+
+        active = activeCount
+
+        if (gender === 'woman') {
+            let res = 655.1 + 9.563 * weight + 1.85 * height - 4.676 * age;
+
+            resultView.innerHTML = Math.round(res * active)
+        } else {
+            let res = 66.5 + 13.75 * weight + 5.003 * height - 6.775 * age
+            resultView.innerHTML = Math.round(res * active)
+        }
+
+        inpNeeds_2.forEach(inp => {
+            inp.classList.remove('invalid')
+            if (inp.value.length < 1) {
+                inp.classList.add('invalid')
+                resultView.innerHTML = 0
+            }
+        })
+    }
+})
